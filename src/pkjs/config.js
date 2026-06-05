@@ -90,6 +90,24 @@ module.exports = [
         "label": "Battery Color",
         "defaultValue": "0x000000",
         "capabilities": ["COLOR"]
+      },
+      {
+        "type": "select",
+        "messageKey": "TimeFont",
+        "label": "Time Font",
+        "defaultValue": "0",
+        "options": [
+          { "label": "Original Tallbolder", "value": "0" },
+          { "label": "Changa One", "value": "1" },
+          { "label": "Anton", "value": "2" },
+          { "label": "Big Shoulders Black", "value": "3" },
+          { "label": "Kode Mono Bold", "value": "4" },
+          { "label": "JetBrains ExtraBold", "value": "5" },
+          { "label": "Share Tech Mono", "value": "6" },
+          { "label": "Orbitron Black", "value": "7" },
+          { "label": "Nova Square", "value": "8" },
+          { "label": "Monoton", "value": "9" }
+        ]
       }
     ]
   },
@@ -104,7 +122,7 @@ module.exports = [
         "type": "toggle",
         "messageKey": "NightTheme",
         "label": "Enable Night Theme After Sunset",
-        "defaultValue": false
+        "defaultValue": true
       },
       {
         "type": "color",
@@ -192,7 +210,7 @@ module.exports = [
         "type": "toggle",
         "messageKey": "ShowDate",
         "label": "Show Date",
-        "defaultValue": false
+        "defaultValue": true
       },
       {
         "type": "toggle",
@@ -223,7 +241,7 @@ module.exports = [
         "type": "toggle",
         "messageKey": "ShowSteps",
         "label": "Show Steps",
-        "defaultValue": false
+        "defaultValue": true
       },
       {
         "type": "toggle",
@@ -258,7 +276,7 @@ module.exports = [
         "type": "toggle",
         "messageKey": "ShowWeather",
         "label": "Show Weather",
-        "defaultValue": false
+        "defaultValue": true
       },
       {
         "type": "toggle",
@@ -270,7 +288,7 @@ module.exports = [
         "type": "slider",
         "messageKey": "WeatherInterval",
         "label": "Weather Update Interval (hours)",
-        "defaultValue": 3,
+        "defaultValue": 2,
         "min": 1,
         "max": 6,
         "step": 1
@@ -315,7 +333,7 @@ module.exports = [
         "type": "toggle",
         "messageKey": "ShowPhoneBattery",
         "label": "Show Phone Battery",
-        "defaultValue": false
+        "defaultValue": true
       },
       {
         "type": "text",

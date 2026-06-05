@@ -1,7 +1,7 @@
 {
   "name": "BigInfo",
   "author": "drod",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "keywords": [
     "weather",
     "moon",
@@ -83,6 +83,7 @@
       "BluetoothVibrate",
       "BluetoothSound",
       "Volume",
+      "TimeFont",
       "ShowPhoneBattery",
       "REQUEST_BATTERY",
       "UNSUBSCRIBE_BATTERY",
@@ -102,6 +103,150 @@
           "type": "font",
           "name": "FONT_TALLBOLD_64",
           "file": "fonts/tallbolder.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CHANGA_ONE_49",
+          "file": "fonts/changa-one.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_CHANGA_ONE_64",
+          "file": "fonts/changa-one.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ANTON_49",
+          "file": "fonts/anton.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ANTON_64",
+          "file": "fonts/anton.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_BIG_SHOULDERS_49",
+          "file": "fonts/big-shoulders-display-black.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_BIG_SHOULDERS_64",
+          "file": "fonts/big-shoulders-display-black.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_KODE_MONO_49",
+          "file": "fonts/kode-mono-bold.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_KODE_MONO_64",
+          "file": "fonts/kode-mono-bold.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JETBRAINS_MONO_49",
+          "file": "fonts/jetbrains-mono-extrabold.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_JETBRAINS_MONO_64",
+          "file": "fonts/jetbrains-mono-extrabold.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SHARE_TECH_MONO_49",
+          "file": "fonts/share-tech-mono.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_SHARE_TECH_MONO_64",
+          "file": "fonts/share-tech-mono.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ORBITRON_49",
+          "file": "fonts/orbitron-black.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ORBITRON_64",
+          "file": "fonts/orbitron-black.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_NOVA_SQUARE_49",
+          "file": "fonts/nova-square.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_NOVA_SQUARE_64",
+          "file": "fonts/nova-square.ttf",
+          "characterRegex": "[0-9: ]",
+          "targetPlatforms": [
+            "emery",
+            "gabbro"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_MONOTON_49",
+          "file": "fonts/monoton.ttf",
+          "characterRegex": "[0-9: ]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_MONOTON_64",
+          "file": "fonts/monoton.ttf",
           "characterRegex": "[0-9: ]",
           "targetPlatforms": [
             "emery",

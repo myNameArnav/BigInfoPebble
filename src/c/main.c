@@ -63,10 +63,17 @@ typedef struct ClaySettings {
   int WeatherTemp;
   int WeatherIcon;
   int PhoneBattery;
+  int TimeFont;
 } ClaySettings;
 
 // An instance of the struct
 static ClaySettings settings;
+
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
+  #define TIME_FONT_RESOURCE(normal, large) large
+#else
+  #define TIME_FONT_RESOURCE(normal, large) normal
+#endif
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -127,18 +134,18 @@ static void prv_default_settings() {
   settings.SunColor = settings.SunColorDay;
   settings.MoonColor = settings.MoonColorDay;
   settings.BatteryColor = settings.BatteryColorDay;
-  settings.NightTheme = false;
-  settings.ShowDate = false;
+  settings.NightTheme = true;
+  settings.ShowDate = true;
   settings.ShowDate2 = false;
   settings.AltDate = false;
-  settings.ShowWeather = false;
+  settings.ShowWeather = true;
   settings.TemperatureUnit = false;
-  settings.WeatherInterval = 3;
-  settings.ShowSteps = false;
+  settings.WeatherInterval = 2;
+  settings.ShowSteps = true;
   settings.ShowHR = false;
   settings.ShowSun = false;
   settings.ShowMoon = false;
-  settings.ShowPhoneBattery = false;
+  settings.ShowPhoneBattery = true;
   settings.PeriodicVibrate = false;
   settings.PeriodicSound = false;
   settings.BluetoothVibrate = false;
@@ -147,12 +154,49 @@ static void prv_default_settings() {
   // storage
   settings.IsDay=false;
   settings.ManualCoordinates=false;
-  settings.SunriseTime=1;
-  settings.SunsetTime=2359;
+  settings.SunriseTime=600;
+  settings.SunsetTime=1900;
   settings.MoonPhase=29;
   settings.WeatherTemp=-99;
   settings.WeatherIcon=15;
   settings.PhoneBattery=0;
+  settings.TimeFont=0;
+}
+
+static uint32_t prv_time_font_resource_id() {
+  switch (settings.TimeFont) {
+    case 1:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_CHANGA_ONE_49, RESOURCE_ID_FONT_CHANGA_ONE_64);
+    case 2:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_ANTON_49, RESOURCE_ID_FONT_ANTON_64);
+    case 3:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_BIG_SHOULDERS_49, RESOURCE_ID_FONT_BIG_SHOULDERS_64);
+    case 4:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_KODE_MONO_49, RESOURCE_ID_FONT_KODE_MONO_64);
+    case 5:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_JETBRAINS_MONO_49, RESOURCE_ID_FONT_JETBRAINS_MONO_64);
+    case 6:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_SHARE_TECH_MONO_49, RESOURCE_ID_FONT_SHARE_TECH_MONO_64);
+    case 7:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_ORBITRON_49, RESOURCE_ID_FONT_ORBITRON_64);
+    case 8:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_NOVA_SQUARE_49, RESOURCE_ID_FONT_NOVA_SQUARE_64);
+    case 9:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_MONOTON_49, RESOURCE_ID_FONT_MONOTON_64);
+    default:
+      return TIME_FONT_RESOURCE(RESOURCE_ID_FONT_TALLBOLD_49, RESOURCE_ID_FONT_TALLBOLD_64);
+  }
+}
+
+static void prv_load_time_font() {
+  if (s_time_font) {
+    fonts_unload_custom_font(s_time_font);
+  }
+
+  s_time_font = fonts_load_custom_font(resource_get_handle(prv_time_font_resource_id()));
+  if (s_time_layer) {
+    text_layer_set_font(s_time_layer, s_time_font);
+  }
 }
 
 static char* weather_conditions[] = {
@@ -580,6 +624,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   bool prev_AltDate = settings.AltDate;
   int prev_Lat = settings.Latitude;
   int prev_Lon = settings.Longitude;
+  int prev_TimeFont = settings.TimeFont;
 
   // Check for Clay settings data
   Tuple *bl_color_day_t = dict_find(iterator, MESSAGE_KEY_BacklightColorDay);
@@ -736,6 +781,14 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   if (volume_t) {
     settings.Volume = (int)volume_t->value->int32;
   }
+  Tuple *time_font_t = dict_find(iterator, MESSAGE_KEY_TimeFont);
+  if (time_font_t) {
+    if (time_font_t->type == TUPLE_CSTRING) {
+      settings.TimeFont = atoi(time_font_t->value->cstring);
+    } else {
+      settings.TimeFont = (int)time_font_t->value->int32;
+    }
+  }
 
   // check for manual coordinates
   Tuple *man_lat_t = dict_find(iterator, MESSAGE_KEY_Latitude);
@@ -801,7 +854,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     show_date_t || show_date2_t || alt_date_t || show_steps_t || show_hr_t || 
     show_weather_t || temp_unit_t || weahter_interval_t || show_sun_t || show_moon_t || man_lat_t || man_lon_t || 
     show_phone_battery_t || periodic_vibrate_t || periodic_sound_t || 
-    bluetooth_vibrate_t || bluetooth_sound_t || volume_t) {
+    bluetooth_vibrate_t || bluetooth_sound_t || volume_t || time_font_t) {
+    
+    if (prev_TimeFont != settings.TimeFont) {
+      prv_load_time_font();
+      update_time();
+    }
     
     // if show battery was toggled
     if (prev_ShowPhoneBattery != settings.ShowPhoneBattery) {
@@ -908,6 +966,32 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
+static void request_initial_data(void *context) {
+  DictionaryIterator *iter;
+  AppMessageResult result = app_message_outbox_begin(&iter);
+  if (result != APP_MSG_OK || iter == NULL) {
+    return;
+  }
+
+  bool should_send = false;
+  if (settings.NightTheme || settings.ShowSun || settings.ShowMoon) {
+    dict_write_uint8(iter, MESSAGE_KEY_REQUEST_SUN, 1);
+    should_send = true;
+  }
+  if (settings.ShowWeather) {
+    dict_write_uint8(iter, MESSAGE_KEY_REQUEST_WEATHER, 1);
+    should_send = true;
+  }
+  if (settings.ShowPhoneBattery) {
+    dict_write_uint8(iter, MESSAGE_KEY_REQUEST_BATTERY, 1);
+    should_send = true;
+  }
+
+  if (should_send) {
+    app_message_outbox_send();
+  }
+}
+
 // Unobstructed area handlers
 static void prv_unobstructed_will_change(GRect final_unobstructed_screen_area, void *context) {
   // Hide layers during the transition to reduce clutter
@@ -981,12 +1065,11 @@ static void main_window_load(Window *window) {
   date_height = info_height;
   s_bt_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_DRIPICONS_16));
   s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_WEATHERICONS_18));
+  prv_load_time_font();
   #if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
-    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_TALLBOLD_64));
     time_padding = 2;
     time_height = 64;
   #else
-    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_TALLBOLD_49));
     time_padding = 2;
     time_height = 49;
   #endif
@@ -1159,6 +1242,9 @@ static void main_window_unload(Window *window) {
   fonts_unload_custom_font(s_time_font);
   fonts_unload_custom_font(s_bt_font);
   fonts_unload_custom_font(s_weather_font);
+  s_time_font = NULL;
+  s_bt_font = NULL;
+  s_weather_font = NULL;
   layer_destroy(s_battery_layer);
   layer_destroy(s_phone_battery_layer);
 }
@@ -1209,6 +1295,7 @@ static void init() {
   const int inbox_size = 384;
   const int outbox_size = 128;
   app_message_open(inbox_size, outbox_size);
+  app_timer_register(1000, request_initial_data, NULL);
 }
 
 static void deinit() {
