@@ -1,6 +1,6 @@
 {
-  "name": "BigInfo",
-  "author": "drod",
+  "name": "BigInfoPebbleRemix",
+  "author": "Arnav, based on BigInfo by drod",
   "version": "2.1.0",
   "keywords": [
     "weather",
@@ -19,8 +19,8 @@
     "@rebble/clay": "^1.0.8"
   },
   "pebble": {
-    "displayName": "BigInfo",
-    "uuid": "8d7cf8e1-27da-469b-bda9-d91c79d17a19",
+    "displayName": "BigInfo Remix",
+    "uuid": "553b8a6e-40ca-4c8f-93aa-2973cb4d925e",
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [

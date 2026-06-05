@@ -1,10 +1,19 @@
-# BigInfo
+# BigInfo Remix
 
 A simple, clean Pebble watchface with a large, easy-to-read font. Displays the essentials at a glance, all configurable so you can hide what you don't need.
 
+This remix is based on BigInfo and keeps the same information-dense layout, but focuses on making the main time display easier to read at a glance. The original Tallbolder font has a great large blocky look, but its `8` and `0` can look similar from certain viewing angles, especially on a small watch screen. This remix adds a configurable time font selector so you can keep the original look or choose an alternate font with clearer digit shapes.
+
+## What's Different in This Remix
+
+- **Selectable time fonts** -- choose Original Tallbolder or one of nine alternate display fonts from the settings page.
+- **Clearer `8` and `0` options** -- the bundled alternate fonts were chosen after emulator screenshot comparisons, with special attention to separating `8` from `0`.
+- **Remix-friendly defaults** -- date, weather, steps, phone battery, and the night theme are enabled by default to match the dense black-background layout.
+- **Startup data refresh** -- when weather, sun/night theme, or phone battery are enabled, the watchface requests fresh data when it starts instead of waiting for the next interval.
+
 ## Features
 
-- **Large time display** -- tall bold font, 12 or 24-hour format
+- **Large time display** -- tall bold font, 12 or 24-hour format, with selectable font options
 - **Custom color options** -- configurable backlight, background and text colors. Optionally switches colors based on sunrise/sunset
 - **Date** -- year, day, month, date, and ISO 8601 date
 - **Step counter** -- today's steps via Pebble Health
