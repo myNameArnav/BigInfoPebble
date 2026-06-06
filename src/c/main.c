@@ -64,6 +64,7 @@ typedef struct ClaySettings {
   int WeatherIcon;
   int PhoneBattery;
   int TimeFont;
+  bool ZeroPad12Hour;
 } ClaySettings;
 
 // An instance of the struct
@@ -77,6 +78,7 @@ static ClaySettings settings;
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
+static TextLayer *s_meridiem_layer;
 static TextLayer *s_date_layer;
 static TextLayer *s_date2_layer;
 static TextLayer *s_health_layer;
@@ -161,6 +163,7 @@ static void prv_default_settings() {
   settings.WeatherIcon=15;
   settings.PhoneBattery=0;
   settings.TimeFont=0;
+  settings.ZeroPad12Hour=false;
 }
 
 static uint32_t prv_time_font_resource_id() {
@@ -325,6 +328,7 @@ static void prv_update_display() {
 
   // Set text colors
   text_layer_set_text_color(s_time_layer, settings.TimeColor);
+  text_layer_set_text_color(s_meridiem_layer, settings.TimeColor);
   text_layer_set_text_color(s_date_layer, settings.DateColor);
   text_layer_set_text_color(s_date2_layer, settings.DateColor);
   text_layer_set_text_color(s_health_layer, settings.HealthColor);
@@ -371,9 +375,14 @@ static void update_time() {
   }
 
   static char s_time_buffer[8];
-  strftime(s_time_buffer, sizeof(s_time_buffer), clock_is_24h_style() ?
-                                                    "%H:%M" : "%l:%M", tick_time);
+  bool use_24_hour = clock_is_24h_style();
+  const char *time_format = use_24_hour ? "%H:%M" :
+    (settings.ZeroPad12Hour ? "%I:%M" : "%l:%M");
+  strftime(s_time_buffer, sizeof(s_time_buffer), time_format, tick_time);
   text_layer_set_text(s_time_layer, s_time_buffer);
+
+  text_layer_set_text(s_meridiem_layer, tick_time->tm_hour < 12 ? "am" : "pm");
+  layer_set_hidden(text_layer_get_layer(s_meridiem_layer), use_24_hour);
 }
 
 static void update_date() {
@@ -796,6 +805,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       settings.TimeFont = (int)time_font_t->value->int32;
     }
   }
+  Tuple *zero_pad_12_hour_t = dict_find(iterator, MESSAGE_KEY_ZeroPad12Hour);
+  if (zero_pad_12_hour_t) {
+    settings.ZeroPad12Hour = zero_pad_12_hour_t->value->int32 == 1;
+    update_time();
+  }
 
   // check for manual coordinates
   Tuple *man_lat_t = dict_find(iterator, MESSAGE_KEY_Latitude);
@@ -863,7 +877,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     show_date_t || show_date2_t || alt_date_t || show_steps_t || show_hr_t || 
     show_weather_t || temp_unit_t || weahter_interval_t || show_sun_t || show_moon_t || man_lat_t || man_lon_t || 
     show_phone_battery_t || periodic_vibrate_t || periodic_sound_t || 
-    bluetooth_vibrate_t || bluetooth_sound_t || volume_t || time_font_t) {
+    bluetooth_vibrate_t || bluetooth_sound_t || volume_t || time_font_t ||
+    zero_pad_12_hour_t) {
     
     if (prev_TimeFont != settings.TimeFont) {
       prv_load_time_font();
@@ -1099,6 +1114,15 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
+  // Create the AM/PM indicator above the time for 12-hour clock mode
+  s_meridiem_layer = text_layer_create(
+      GRect(0, time_y - 13, bounds.size.w - 10, 18));
+  text_layer_set_background_color(s_meridiem_layer, GColorClear);
+  text_layer_set_text_color(s_meridiem_layer, settings.TimeColor);
+  text_layer_set_font(s_meridiem_layer,
+      fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
+  text_layer_set_text_alignment(s_meridiem_layer, GTextAlignmentRight);
+
   // Create the date TextLayer
   s_date_layer = text_layer_create(
       GRect(0, date_y, bounds.size.w, (info_height + 4)));
@@ -1209,6 +1233,7 @@ static void main_window_load(Window *window) {
 
   // Add layers to the Window
   layer_add_child(s_window_layer, text_layer_get_layer(s_time_layer));
+  layer_add_child(s_window_layer, text_layer_get_layer(s_meridiem_layer));
   layer_add_child(s_window_layer, text_layer_get_layer(s_date_layer));
   layer_add_child(s_window_layer, text_layer_get_layer(s_date2_layer));
   layer_add_child(s_window_layer, text_layer_get_layer(s_weather_layer));
@@ -1239,6 +1264,7 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer);
+  text_layer_destroy(s_meridiem_layer);
   text_layer_destroy(s_date_layer);
   text_layer_destroy(s_date2_layer);
   text_layer_destroy(s_weather_layer);

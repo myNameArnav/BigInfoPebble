@@ -1,7 +1,7 @@
 {
   "name": "BigInfoPebbleRemix",
   "author": "Arnav, based on BigInfo by drod",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "keywords": [
     "weather",
     "moon",
@@ -89,7 +89,8 @@
       "UNSUBSCRIBE_BATTERY",
       "BATTERY",
       "Latitude",
-      "Longitude"
+      "Longitude",
+      "ZeroPad12Hour"
     ],
     "resources": {
       "media": [

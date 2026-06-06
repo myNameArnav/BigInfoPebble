@@ -108,6 +108,13 @@ module.exports = [
           { "label": "Nova Square", "value": "8" },
           { "label": "Monoton", "value": "9" }
         ]
+      },
+      {
+        "type": "toggle",
+        "messageKey": "ZeroPad12Hour",
+        "label": "Leading Zero in 12-Hour Time",
+        "description": "Show `01:05` instead of `1:05` when the watch uses 12-hour time.",
+        "defaultValue": false
       }
     ]
   },
