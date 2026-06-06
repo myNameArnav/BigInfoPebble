@@ -189,13 +189,20 @@ static uint32_t prv_time_font_resource_id() {
 }
 
 static void prv_load_time_font() {
-  if (s_time_font) {
-    fonts_unload_custom_font(s_time_font);
+  GFont new_time_font = fonts_load_custom_font(
+    resource_get_handle(prv_time_font_resource_id()));
+  if (!new_time_font) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Failed to load time font %d", settings.TimeFont);
+    return;
   }
 
-  s_time_font = fonts_load_custom_font(resource_get_handle(prv_time_font_resource_id()));
+  GFont old_time_font = s_time_font;
+  s_time_font = new_time_font;
   if (s_time_layer) {
     text_layer_set_font(s_time_layer, s_time_font);
+  }
+  if (old_time_font) {
+    fonts_unload_custom_font(old_time_font);
   }
 }
 
@@ -799,10 +806,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   if (man_lon_t) {
     settings.Longitude = parse_coordinates(man_lon_t->value->cstring);
   }
-  if (settings.Latitude && settings.Longitude && (strcmp(man_lat_t->value->cstring,"") != 0) && (strcmp(man_lon_t->value->cstring,"") != 0)) {
-    settings.ManualCoordinates = true;
-  } else {
-    settings.ManualCoordinates = false;
+  if (man_lat_t || man_lon_t) {
+    bool latitude_set = man_lat_t ?
+      man_lat_t->length > 1 : settings.ManualCoordinates;
+    bool longitude_set = man_lon_t ?
+      man_lon_t->length > 1 : settings.ManualCoordinates;
+    settings.ManualCoordinates = latitude_set && longitude_set;
   }
 
   // Check for weather data
@@ -1292,7 +1301,9 @@ static void init() {
   app_message_register_outbox_sent(outbox_sent_callback);
 
   // Open AppMessage
-  const int inbox_size = 384;
+  // Clay sends every visible setting at once. The current Emery payload is
+  // larger than 384 bytes, so a smaller inbox causes the whole save to fail.
+  const int inbox_size = 512;
   const int outbox_size = 128;
   app_message_open(inbox_size, outbox_size);
   app_timer_register(1000, request_initial_data, NULL);
